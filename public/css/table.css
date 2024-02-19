@@ -1,0 +1,40 @@
+th {
+    padding: 10px;
+}
+
+table {
+    text-align: center;
+}
+
+.table-responsive {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+table tr td {
+    vertical-align: middle !important;
+}
+
+table tr td {
+    max-width: 150px; 
+    max-height: 100px; 
+    overflow-x: auto;
+    overflow-y: hidden !important;
+    scrollbar-width: thin; 
+    scrollbar-color: darkgray lightgray;
+  }
+  
+  table tr td::-webkit-scrollbar {
+    width: 6px; 
+    height: 10px;
+  }
+  
+  table tr td::-webkit-scrollbar-thumb {
+    background: darkgray; 
+    border-radius: 3px; 
+  }
+  
+  table tr td::-webkit-scrollbar-track {
+    background: lightgray; 
+  }
