@@ -60,14 +60,6 @@ const Categories = () => {
   };
 
   useEffect(() => {
-    setForm({ ...form, slug: form.name.replace(/\s+/g, "-") });
-  }, [form.name]);
-
-  useEffect(() => {
-    setEditForm({ ...editForm, slug: editForm.name.replace(/\s+/g, "-") });
-  }, [editForm.name]);
-
-  useEffect(() => {
     let params = new URLSearchParams(location.search);
     if (search != null) {
       params.set("search", search);
@@ -159,7 +151,7 @@ const Categories = () => {
           const originalText = element.textContent.substr(index, search.length);
           element.innerHTML = element.textContent.replace(
             new RegExp(originalText, "i"),
-            `<span class="highlight">${originalText}</span>`
+            `<span className="highlight">${originalText}</span>`
           );
         }
       });
@@ -175,7 +167,7 @@ const Categories = () => {
     axios
       .get(`/admin/categories/${id}`)
       .then((response) => {
-        setEditForm(response.data.data);
+        setEditForm(response.data);
         toggleEditModal();
       })
       .catch(() => {
@@ -307,6 +299,25 @@ const Categories = () => {
     [page, sort, isLoading, search]
   );
 
+  const importFromExcel = (e) => {
+    const file = e.target.files[0];
+    let form = new FormData();
+    form.append("file", file);
+
+    axios
+      .post("/admin/categories/import", form, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(() => {
+        fetchCategories();
+      })
+      .catch((error) => {
+        console.error("Error uploading file:", error);
+      });
+  };
+
   useEffect(() => {
     if (!Permission.can(auth, "read-categories")) {
       return navigate("/admin/dashboard", {
@@ -320,7 +331,6 @@ const Categories = () => {
 
   const columns = [
     { title: "Name", dataField: "name", sortable: true },
-    { title: "Slug", dataField: "slug", sortable: true },
   ];
 
   return (
@@ -333,6 +343,10 @@ const Categories = () => {
           >
             Add Category
           </button>
+          <input type="file" placeholder="import from excel"
+            className="inline-block ml-3 rounded mt-3 bg-indigo-600 px-6 pb-2 pt-2.5 text-base font-medium leading-normal text-white"
+            onChange={importFromExcel}
+          />
           {selected.length > 0 && (
             <button
               className="inline-block ml-3 rounded mt-3 bg-red-600 px-6 pb-2 pt-2.5 text-base font-medium leading-normal text-white"
@@ -346,7 +360,7 @@ const Categories = () => {
           type="search"
           onChange={(event) => setSearch(event.target.value)}
           id="search"
-          class="bg-gray-50 border border-gray-300 my-3 text-gray-900 text-sm rounded-lg focus:ring-blue-500
+          className="bg-gray-50 border border-gray-300 my-3 text-gray-900 text-sm rounded-lg focus:ring-blue-500
                      focus:border-blue-500 block w-1/4 ml-3 p-2.5 dark:bg-gray-700 dark:border-gray-600
                       dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500
                        dark:focus:border-blue-500"
@@ -368,11 +382,11 @@ const Categories = () => {
           handleSort={handleSort}
         />
         {/* {Object.keys(links).length > 0 && ( */}
-          <Pagination
-            page={page}
-            numberofPages={numberofPages}
-            changePage={changePage}
-          ></Pagination>
+        <Pagination
+          page={page}
+          numberofPages={numberofPages}
+          changePage={changePage}
+        ></Pagination>
         {/* )} */}
       </div>
 
@@ -392,14 +406,6 @@ const Categories = () => {
           onChange={(event) => setForm({ ...form, name: event.target.value })}
           placeholder="name"
         />
-        <Input
-          label="slug"
-          type="text"
-          value={form.slug}
-          classslug="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
-          onChange={(event) => setForm({ ...form, slug: event.target.value })}
-          placeholder="country"
-        />
       </Modal>
 
       <Modal
@@ -417,17 +423,6 @@ const Categories = () => {
           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
           onChange={(event) =>
             setEditForm({ ...editForm, name: event.target.value })
-          }
-          placeholder="country"
-        />
-
-        <Input
-          label="slug"
-          type="text"
-          value={editForm.slug}
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
-          onChange={(event) =>
-            setEditForm({ ...editForm, slug: event.target.value })
           }
           placeholder="country"
         />

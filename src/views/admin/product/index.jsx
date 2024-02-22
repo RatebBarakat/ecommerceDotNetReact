@@ -21,7 +21,7 @@ const Products = () => {
     let page = new URLSearchParams(location.search).get("page");
     return page !== null && !isNaN(page) && page > 0 ? parseInt(page) : 1;
   };
-  const [categoryFitler, setCategoryFitler] = useState(null);
+  const [categoryFilter, setcategoryFilter] = useState(null);
   const [categories, setCategories] = useState([]);
   const auth = useContext(AuthContext);
   const axios = createAxiosInstance(auth);
@@ -55,7 +55,7 @@ const Products = () => {
           const originalText = element.textContent.substr(index, search.length);
           element.innerHTML = element.textContent.replace(
             new RegExp(originalText, "i"),
-            `<span class="highlight">${originalText}</span>`
+            `<span className="highlight">${originalText}</span>`
           );
         }
       });
@@ -73,8 +73,8 @@ const Products = () => {
       params.set("search", search.trim());
     }
 
-    if (categoryFitler !== null) {
-      params.set("categoryFitler", categoryFitler);
+    if (categoryFilter !== null) {
+      params.set("categoryFilter", categoryFilter);
     }
 
     if (hasVarients !== null) {
@@ -92,8 +92,13 @@ const Products = () => {
   useEffect(() => {
     const queryParams = buildQueryParams();
     navigate(`?${queryParams}`);
-    fetchProducts();
-  }, [search, categoryFitler, hasVarients, sort, sortOrder]);
+    const delayedFetch = debounce(() => {
+      fetchProducts();
+    }, 300);
+
+    delayedFetch();
+  }, [search, categoryFilter, hasVarients, sort, sortOrder]);
+
   // useEffect(() => {
   //     let params = new URLSearchParams(location.search);
   //     if (search != null) {
@@ -111,7 +116,7 @@ const Products = () => {
   //         if (element.textContent.includes(search)) {
   //             element.innerHTML = element.textContent.replace(
   //                 search,
-  //                 '<span class="highlight">' + search + "</span>"
+  //                 '<span className="highlight">' + search + "</span>"
   //             );
   //         }
   //     })
@@ -123,20 +128,20 @@ const Products = () => {
   // }, [search]);
   // useEffect(() => {
   //     let params = new URLSearchParams(location.search);
-  //     if (categoryFitler != null) {
-  //         params.set("categoryFitler", categoryFitler);
+  //     if (categoryFilter != null) {
+  //         params.set("categoryFilter", categoryFilter);
   //         navigate(`?${params.toString()}`);
   //     } else {
-  //         params.delete("categoryFitler");
+  //         params.delete("categoryFilter");
   //         navigate(`?${params.toString()}`);
   //     }
 
   //     fetchProducts(page, sort);
 
   //     return () => {
-  //         console.log("categoryFitler changed finish", categoryFitler);
+  //         console.log("categoryFilter changed finish", categoryFilter);
   //     };
-  // }, [categoryFitler]);
+  // }, [categoryFilter]);
   // useEffect(() => {
   //     let params = new URLSearchParams(location.search);
   //     if (hasVarients != null) {
@@ -232,6 +237,28 @@ const Products = () => {
     }
   };
 
+  const importFromExcel = (e) => {
+    const file = e.target.files[0];
+    let form = new FormData();
+    form.append("file", file);
+
+    axios
+      .post("/admin/products/import", form, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(() => {
+        fetchProducts();
+      })
+      .catch((error) => {
+        console.error("Error uploading file:", error);
+      })
+      .finally(() => {
+        e.target.value = "";
+      });
+  };
+
   const handleCheckboxChange = useCallback(
     (event) => {
       const productId = parseInt(event.target.value);
@@ -281,16 +308,12 @@ const Products = () => {
 
     param.set("order", sortOrder);
 
-    if (search !== null) {
+    if (search != null) {
       param.set("search", search);
     }
 
-    if (search !== null) {
-      param.set("search", search);
-    }
-
-    if (categoryFitler !== null) {
-      param.set("categoryFitler", categoryFitler);
+    if (categoryFilter != null) {
+      param.set("categoryFilter", categoryFilter);
     }
 
     paginateUrl += `?${param.toString()}`;
@@ -299,7 +322,7 @@ const Products = () => {
       .then((response) => {
         console.log("response.data.data :>> ", response.data);
         setProducts(response.data.data);
-        setNumberOfPages(response.data.meta.last_page);
+        setNumberOfPages(response.data.total);
         setLinks(response.data.meta);
         setIsLoading(false);
       })
@@ -320,14 +343,13 @@ const Products = () => {
       });
     } else {
       CheckPoducts();
-      axios.get("admin/categories/all")
-      .then((response) => {
+      axios.get("admin/categories/all").then((response) => {
         let categoriesResponse = response.data.map((category) => ({
           value: category.id,
           label: category.name,
         }));
         categoriesResponse.unshift({
-          value: "",
+          value: null,
           label: "select to filter",
         });
 
@@ -376,6 +398,12 @@ const Products = () => {
           >
             Add product
           </Link>
+          <input
+            type="file"
+            placeholder="import from excel"
+            className="inline-block ml-3 rounded mt-3 bg-indigo-600 px-6 pb-2 pt-2.5 text-base font-medium leading-normal text-white"
+            onChange={importFromExcel}
+          />
           {selected.length > 0 && (
             <button
               className="inline-block ml-3 rounded mt-3 bg-red-600 px-6 pb-2 pt-2.5 text-base font-medium leading-normal text-white"
@@ -385,7 +413,7 @@ const Products = () => {
             </button>
           )}
         </div>
-        <div className="flex gap-1 items-center">
+        <div className="flex gap-1 content-between items-center">
           <input
             type="search"
             name="search-product"
@@ -397,27 +425,36 @@ const Products = () => {
             placeholder="search..."
           />
           <Select
-            className="w-1/2"
+            className=""
             options={categories}
             isSearchable={true}
-            onChange={(event) => setCategoryFitler(event.value)}
+            onChange={(event) => setcategoryFilter(event.value)}
             styles={{
               control: (styles) => ({
                 ...styles,
                 borderRadius: "0.375rem",
-                border: "1px solid #D1D5DB",
+                borderColor: "#4f46e5",
+              }),
+              option: (styles, { isSelected }) => ({
+                ...styles,
+                backgroundColor: isSelected ? "#4f46e5" : "white",
+                "&:hover": {
+                  backgroundColor: "#4f46e5",
+                  color: "white",
+                },
               }),
             }}
           />
-          <select
+
+          {/* <select
             id="countries"
-            class="bg-gray-50 border border-gray-300 text-gray-900 w-1/4 h-fit text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="bg-gray-50 border border-gray-300 text-gray-900 w-1/4 h-fit text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             onChange={(event) => setHasVarients(event.target.value)}
           >
             <option value="">has varients</option>
             <option value="yes">yes</option>
             <option value="no">no</option>
-          </select>
+          </select> */}
         </div>
         <Table
           columns={columns}
@@ -433,13 +470,11 @@ const Products = () => {
           isLoading={isLoading}
           handleSort={handleSort}
         />
-        {Object.keys(links).length > 0 && (
-          <Pagination
-            page={page}
-            numberofPages={numberofPages}
-            changePage={changePage}
-          ></Pagination>
-        )}
+        <Pagination
+          page={page}
+          numberofPages={numberofPages}
+          changePage={changePage}
+        ></Pagination>
       </div>
     </>
   );

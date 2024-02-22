@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 import Toast from "../../../components/Toast";
 import ErrorHelper from "../../../helpers/errors";
 import Input from "../../../components/input";
-
 import Pagination from "../../../components/Pagination";
 import "tw-elements-react/dist/css/tw-elements-react.min.css";
 import Table from "../../../components/Table";
@@ -24,19 +23,26 @@ const getInitialPage = () => {
   return page !== null && !isNaN(page) && page > 0 ? parseInt(page) : 1;
 };
 
-const Tags = () => {
+const Roles = () => {
   const axios = createAxiosInstance();
   const auth = useContext(AuthContext);
-  const [tags, setTags] = useState([]);
   const [sort, setSort] = useState(null);
+  const [roles, setroles] = useState([]);
+  const [allPermissions, setAllPermissons] = useState([]);
+  const [roleSync, setRoleSync] = useState({
+    id: 0,
+    permissions: [],
+  });
   const [selected, setSelected] = useState([]);
-  const [links, setLinks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setEditShowModal] = useState(false);
+  const [showSyncModal, setShowSyncModal] = useState(false);
   const [numberofPages, setNumberOfPages] = useState(0);
-  const [page, setPage] = useState(getInitialPage);
   const [search, setSearch] = useState(null);
+
+  const [page, setPage] = useState(getInitialPage);
+
   const [errors, setErrors] = useState({
     add: {},
     edit: {},
@@ -47,31 +53,14 @@ const Tags = () => {
 
   const [editForm, setEditForm] = useState({
     id: "",
+    name: "",
   });
 
   const changePage = ({ selected }) => {
     const newPage = selected + 1;
     setPage(newPage);
-    fetchTags(newPage);
+    fetchRoles(newPage);
   };
-
-  const handleSort = useCallback(
-    (newSort) => {
-      setSort((prevSort) => (prevSort !== newSort ? newSort : null));
-    },
-    [setSort]
-  );
-
-  useEffect(() => {
-    let params = new URLSearchParams(location.search);
-    if (page != 1) {
-      params.set("page", page);
-      navigate(`?${params.toString()}`);
-    } else {
-      params.delete("page");
-      navigate(`?${params.toString()}`);
-    }
-  }, [page]);
 
   useEffect(() => {
     let params = new URLSearchParams(location.search);
@@ -84,7 +73,7 @@ const Tags = () => {
     }
 
     const delayedFetch = debounce(() => {
-      fetchTags(page, sort);
+      fetchRoles(page, sort);
     }, 300);
 
     delayedFetch();
@@ -97,10 +86,21 @@ const Tags = () => {
 
   useEffect(() => {
     let params = new URLSearchParams(location.search);
+    if (page !== 1 && typeof page === "number" && page > 0) {
+      params.set("page", page);
+      navigate(`?${params.toString()}`);
+    } else {
+      params.delete("page");
+      navigate(`?${params.toString()}`);
+    }
+  }, [page]);
+
+  useEffect(() => {
+    let params = new URLSearchParams(location.search);
     if (sort != null) {
       params.set("sort", sort);
       navigate(`?${params.toString()}`);
-      fetchTags();
+      fetchRoles();
     } else {
       params.delete("sort");
       navigate(`?${params.toString()}`);
@@ -117,96 +117,34 @@ const Tags = () => {
     setEditShowModal(!showEditModal);
   };
 
+  const toggleSyncModal = () => {
+    setShowSyncModal(!showSyncModal);
+  };
+
   const resetErrors = () => {
     setErrors({ add: {}, edit: {} });
   };
 
   const resetInputs = (type) => {
-    type == "add" ? setForm({ name: "" }) : setEditForm({ name: "" });
+    type == "add"
+      ? setForm({ name: "", slug: "" })
+      : setEditForm({ name: "", slug: "" });
   };
 
   const handleSubmit = async () => {
     resetErrors();
     axios
-      .post(`/api/tag`, form)
+      .post(`/admin/roles`, { Name: form.name })
       .then(() => {
-        fetchTags(1);
+        fetchRoles(1);
         resetInputs("add");
         setPage(1);
         toggleModal();
-        Toast.notifyMessage("success", "tag added");
+        Toast.notifyMessage("success", "role added");
       })
       .catch((error) => {
         const addErrors = ErrorHelper.extractErrorMessage(error);
         setErrors({ add: addErrors, edit: {} });
-      });
-  };
-
-  const openEditForm = (id) => {
-    resetErrors();
-    axios
-      .get(`/api/tag/${id}`)
-      .then((response) => {
-        setEditForm(response.data.data);
-        toggleEditModal();
-      })
-      .catch(() => {
-        Toast.notifyMessage("an error occur");
-      });
-  };
-
-  const handleEditSubmit = () => {
-    axios
-      .put(`/api/tag/${editForm.id}`, editForm)
-      .then(() => {
-        fetchTags(page);
-        resetInputs("edit");
-        toggleEditModal();
-        Toast.notifyMessage("success", "tag updated");
-      })
-      .catch((error) => {
-        const editErrors = ErrorHelper.extractErrorMessage(error);
-        setErrors({ edit: editErrors, add: {} });
-      });
-  };
-
-  const handleDelete = (id) => {
-    if (!confirm("are you sure you want to delete this tag")) {
-      return;
-    }
-    axios
-      .delete(`/api/tag/${id}`)
-      .then(() => {
-        fetchTags(1);
-        Toast.notifyMessage("success", "tag delted");
-      })
-      .catch((error) => {
-        Toast.notifyMessage(
-          "error",
-          error.response?.data?.message,
-          toString() ?? "cant delete"
-        );
-      });
-  };
-  const handleDeleteMany = () => {
-    if (!confirm("are you sure you want to delete selected tags")) {
-      return;
-    }
-    axios
-      .post(`/api/tag/deleteMany`, { ids: Array.from(selected) })
-      .then(() => {
-        fetchTags(1);
-        Toast.notifyMessage("success", "tag delted");
-      })
-      .catch((error) => {
-        Toast.notifyMessage(
-          "error",
-          error.response?.data?.message,
-          toString() ?? "cant delete"
-        );
-      })
-      .finally(() => {
-        setSelected([]);
       });
   };
 
@@ -226,15 +164,93 @@ const Tags = () => {
       });
     };
 
-    if (tags.length > 0 && search !== null && search !== "") {
+    if (roles.length > 0 && search !== null && search !== "") {
       highlightSearch();
     }
-  }, [tags, search]);
+  }, [roles, search]);
+
+  const openEditForm = (id) => {
+    resetErrors();
+    axios
+      .get(`/admin/roles/${id}`)
+      .then((response) => {
+        setEditForm(response.data);
+        toggleEditModal();
+      })
+      .catch(() => {
+        Toast.notifyMessage("an error occur");
+      });
+  };
+
+  const handleEditSubmit = () => {
+    axios
+      .put(`/admin/roles/${editForm.id}`, {
+        Name: editForm.name,
+      })
+      .then(() => {
+        fetchRoles(page);
+        resetInputs("edit");
+        toggleEditModal();
+        Toast.notifyMessage("success", "role updated");
+      })
+      .catch((error) => {
+        const editErrors = ErrorHelper.extractErrorMessage(error);
+        setErrors({ edit: editErrors, add: {} });
+      });
+  };
+
+  const handleDelete = (id) => {
+    if (!confirm("are you sure you want to delete this role")) {
+      return;
+    }
+    axios
+      .delete(`/admin/roles/${id}`)
+      .then(() => {
+        fetchRoles(1);
+        Toast.notifyMessage("success", "role delted");
+      })
+      .catch((error) => {
+        Toast.notifyMessage(
+          "error",
+          error.response?.data?.message,
+          toString() ?? "cant delete"
+        );
+      });
+  };
+
+  const handleSort = useCallback(
+    (newSort) => {
+      setSort((prevSort) => (prevSort !== newSort ? newSort : null));
+    },
+    [setSort]
+  );
+
+  const handleDeleteMany = () => {
+    if (!confirm("are you sure you want to delete selected roles")) {
+      return;
+    }
+    axios
+      .post(`/admin/roles/deleteMany`, { ids: Array.from(selected) })
+      .then(() => {
+        fetchRoles(1);
+        Toast.notifyMessage("success", "role delted");
+      })
+      .catch((error) => {
+        Toast.notifyMessage(
+          "error",
+          error.response?.data?.message,
+          toString() ?? "cant delete"
+        );
+      })
+      .finally(() => {
+        setSelected([]);
+      });
+  };
 
   const handleSelectAll = (event) => {
     const selectedAll = event.target.checked;
     if (selectedAll) {
-      const allIds = tags.map((tag) => tag.id);
+      const allIds = roles.map((role) => role.id);
       setSelected(allIds);
     } else {
       setSelected([]);
@@ -243,28 +259,28 @@ const Tags = () => {
 
   const handleCheckboxChange = useCallback(
     (event) => {
-      const productId = parseInt(event.target.value);
+      const roleid = parseInt(event.target.value);
       const isChecked = event.target.checked;
 
       setSelected((prevSelected) => {
         if (isChecked) {
-          return [...prevSelected, productId];
+          return [...prevSelected, roleid];
         } else {
-          return prevSelected.filter((id) => id !== productId);
+          return prevSelected.filter((id) => id !== roleid);
         }
       });
     },
     [setSelected]
   );
 
-  const isSelected = (tagId) => {
-    return selected.includes(tagId);
+  const isSelected = (roleId) => {
+    return selected.includes(roleId);
   };
 
-  const fetchTags = useCallback(
+  const fetchRoles = useCallback(
     async (forcePage = null) => {
       !isLoading && setIsLoading(true);
-      let paginateUrl = "api/tag";
+      let paginateUrl = "admin/roles";
       let param = new URLSearchParams(location.search);
 
       forcePage && setPage(forcePage);
@@ -280,32 +296,89 @@ const Tags = () => {
       axios
         .get(paginateUrl)
         .then((response) => {
-          setTags(response.data.data);
-          setNumberOfPages(response.data.meta.last_page);
-          setLinks(response.data.meta);
+          setroles(response.data.data);
+          setNumberOfPages(response.data.total);
           setIsLoading(false);
         })
         .catch(() => {
           setIsLoading(false);
         });
     },
-    [page, sort]
+    [page, sort, isLoading, search]
   );
 
+  const handlePermissionsChange = (event, id) => {
+    const isChecked = event.target.checked;
+
+    if (isChecked) {
+      const permission = allPermissions.find((perm) => perm.id === id);
+      if (permission) {
+        setRoleSync((prevRoleSync) => ({
+          ...prevRoleSync,
+          permissions: [...prevRoleSync.permissions, permission],
+        }));
+      }
+    } else {
+      setRoleSync((prevRoleSync) => ({
+        ...prevRoleSync,
+        permissions: prevRoleSync.permissions.filter((perm) => perm.id !== id),
+      }));
+    }
+  };
+
+  const handleSyncRole = () => {
+    console.log("roleSync.permissions :>> ", roleSync.permissions);
+    var payload = roleSync.permissions.map((p) => p.id);
+    axios
+      .put(`admin/roles/${roleSync.id}/sync`, payload)
+      .then(() => {
+        toggleSyncModal();
+        Toast.notifyMessage(`role's permissions synced syccessfully`);
+      })
+      .catch((err) => {
+        console.log("err :>> ", err);
+      })
+      .finally(() => {
+        setRoleSync({
+          id: 0,
+          permissions: [],
+        });
+      });
+  };
+
   useEffect(() => {
-    if (!Permission.can(auth, "read-tags")) {
+    if (!Permission.can(auth, "read-roles")) {
       return navigate("/admin/dashboard", {
         replace: true,
       });
     } else {
       let params = new URLSearchParams(location.search);
-      !tags.length < 1 && params.get("page") !== 1
-        ? fetchTags(page)
-        : fetchTags();
+      params.get("page") ? fetchRoles(page) : fetchRoles();
+      axios
+        .get("admin/permissions")
+        .then((result) => {
+          console.log("result.data :>> ", result.data);
+          setAllPermissons(result.data);
+        })
+        .catch((err) => {
+          console.log("err :>> ", err);
+        });
     }
-  }, [auth.permissions]);
+  }, []);
 
   const columns = [{ title: "Name", dataField: "name", sortable: true }];
+
+  const onActionExecuted = (id) => {
+    axios.get(`admin/roles/${id}/permissions`).then((response) => {
+      setRoleSync({
+        id: id,
+        permissions: response.data,
+      });
+      setShowSyncModal(true);
+    });
+  };
+
+  const additionalActions = [{ icon: "fa-eye", onAction: onActionExecuted }];
 
   return (
     <>
@@ -315,7 +388,7 @@ const Tags = () => {
             className="inline-block ml-3 rounded mt-3 bg-indigo-600 px-6 pb-2 pt-2.5 text-base font-medium leading-normal text-white"
             onClick={toggleModal}
           >
-            Add tag
+            Add role
           </button>
           {selected.length > 0 && (
             <button
@@ -337,12 +410,13 @@ const Tags = () => {
           placeholder="search..."
           required
         />
+
         <Table
           columns={columns}
-          data={tags}
+          data={roles}
           selected={selected}
-          canEdit="update-tags"
-          canDelete="delete-tags"
+          canEdit="update-roles"
+          canDelete="delete-roles"
           handleEdit={openEditForm}
           handleDelete={handleDelete}
           handleCheckboxChange={handleCheckboxChange}
@@ -350,20 +424,21 @@ const Tags = () => {
           isSelected={isSelected}
           isLoading={isLoading}
           handleSort={handleSort}
+          additionalActions={additionalActions}
         />
-        {Object.keys(links).length > 0 && (
-          <Pagination
-            page={page}
-            numberofPages={numberofPages}
-            changePage={changePage}
-          ></Pagination>
-        )}
+        {/* {Object.keys(links).length > 0 && ( */}
+        <Pagination
+          page={page}
+          numberofPages={numberofPages}
+          changePage={changePage}
+        ></Pagination>
+        {/* )} */}
       </div>
 
       <Modal
         identifier="add"
         errors={errors.add}
-        header="add tag"
+        header="add role"
         showModal={showModal}
         toggleModal={toggleModal}
         onSubmit={handleSubmit}
@@ -372,13 +447,14 @@ const Tags = () => {
           label="name"
           type="text"
           value={form.name}
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
           onChange={(event) => setForm({ ...form, name: event.target.value })}
           placeholder="name"
         />
       </Modal>
+
       <Modal
-        header="edit tag"
+        header="edit role"
         identifier="edit"
         showModal={showEditModal}
         toggleModal={toggleEditModal}
@@ -396,8 +472,34 @@ const Tags = () => {
           placeholder="country"
         />
       </Modal>
+
+      <Modal
+        header="sync role's permissions"
+        identifier="sync"
+        showModal={showSyncModal}
+        toggleModal={toggleSyncModal}
+        onSubmit={handleSyncRole}
+        errors={errors.edit}
+      >
+        <div className="flex flex-wrap gap-2">
+          {Array.from(allPermissions).map((item) => (
+            <>
+              <label htmlFor="perm">{item.name}</label>
+              <input
+                type="checkbox"
+                id={`perm-${item.id}`}
+                value={item.id}
+                checked={roleSync.permissions.some(
+                  (perm) => perm.id === item.id
+                )}
+                onChange={(event) => handlePermissionsChange(event, item.id)}
+              />
+            </>
+          ))}
+        </div>
+      </Modal>
     </>
   );
 };
 
-export default Tags;
+export default Roles;
