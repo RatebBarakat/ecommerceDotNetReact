@@ -8,10 +8,13 @@ import { ProfileContext } from "../contexts/profile";
 import Cookies from "js-cookie";
 import Toast from "../components/Toast";
 import createAxiosInstance from "../axios";
+import Header from "../components/Header";
+import { CartContext } from "../contexts/cart";
 
 export default function AuthLayout() {
   const navigate = useNavigate();
   const auth = useContext(AuthContext);
+  const cart = useContext(CartContext);
   const profile = useContext(ProfileContext);
   const [avatar, setAvatar] = useState();
 
@@ -63,7 +66,7 @@ export default function AuthLayout() {
   return (
     auth.user && (
       <>
-        <nav className="w-full mx-auto p-2 flex justify-between items-center bg-indigo-600">
+        {/* <nav className="w-full mx-auto p-2 flex justify-between items-center bg-indigo-600">
           <Link to="/admin/dashboard" className="text-2xl text-white font-bold">
             nav
           </Link>
@@ -155,7 +158,8 @@ export default function AuthLayout() {
               </>
             )}
           </div>
-        </nav>
+        </nav> */}
+        <Header AuthContext={auth} CartContext={cart} />
         <hr />
         <Outlet />
       </>

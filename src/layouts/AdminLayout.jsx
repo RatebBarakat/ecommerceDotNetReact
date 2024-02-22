@@ -19,7 +19,6 @@ export default function AdminLayout() {
     setAvatar(profile.profile?.avatar || null);
     if (profile.profile?.avatar && document.getElementById("avatar")) {
       document.getElementById("avatar").src = profile.profile?.avatar;
-      console.log('profile.profile :>> ', profile.profile);
     }
   }, [profile.profile]);
 
@@ -27,15 +26,10 @@ export default function AdminLayout() {
     return classes.filter(Boolean).join(" ");
   }
 
-  const axios = createAxiosInstance();
+  const axios = createAxiosInstance(auth);
 
   const logout = async () => {
     try {
-      if (!Cookies.get("XSRF-TOKEN")) {
-        await axios.get("/sanctum/csrf-cookie", {
-          withCredentials: "include",
-        });
-      }
       await auth.logout();
       return navigate("/login", {
         replace: true,
@@ -47,9 +41,8 @@ export default function AdminLayout() {
 
   useEffect(() => {
     const fetchUserAndRedirect = async () => {
-      console.log("auth.isAdmin :>> ", auth.isAdmin);
-      if (auth.isLoading === false && auth.isAdmin === false) {
-        Toast.notifyMessage("error", "you cannt access this page");
+      if (auth.isLoading === false &&(!auth.user || auth.isAdmin === false)) {
+        Toast.notifyMessage("error", "you can't access this page");
         navigate(auth.user ? "/user/dashboard" : "/login");
       }
     };
