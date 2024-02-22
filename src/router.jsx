@@ -18,6 +18,7 @@ import Updateproduct from "./views/admin/product/update";
 import Tags from "./views/admin/tag";
 import AdminLayout from "./layouts/AdminLayout";
 import Cart from "./views/cart";
+import Roles from "./views/admin/roles";
 
 const router = createBrowserRouter([
     {
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
             {
                 path: 'categories',
                 element: <Categories />
+            },
+            {
+                path: 'roles',
+                element: <Roles />
             },
             {
                 path: 'products',
