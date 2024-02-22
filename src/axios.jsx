@@ -17,7 +17,8 @@ const createAxiosInstance = (authContext = null) => {
         authContext.fetchUser(); 
       }
       if (error.response && error.response.status === 401) {
-        authContext && authContext.fetchUser(); 
+        authContext.fetchUser(); 
+        throw Error("401");
       }
       return Promise.reject(error);
     }
