@@ -12,9 +12,9 @@ import { CartProvider } from "./contexts/cart";
 
 const root = createRoot(document.getElementById("root"));
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faEdit, faTrash, faEye } from '@fortawesome/free-solid-svg-icons'
 
-library.add(faEdit, faTrash)
+library.add(faEdit, faTrash, faEye)
 
 root.render(
     <CartProvider>

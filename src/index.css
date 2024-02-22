@@ -16,3 +16,11 @@
 /* .bg-indigo-600 {
   background-color: rgb(0, 90, 225);
 } */
+
+.product:hover img {
+  scale: 1.2;
+}
+
+.product img {
+  transition: all .5s;
+}
