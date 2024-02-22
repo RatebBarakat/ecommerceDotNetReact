@@ -1,15 +1,29 @@
 import { useContext, useMemo, useState } from "react";
 import Loading from "../components/Loading.jsx";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CartContext } from "../contexts/cart.jsx";
 import Toast from "../components/Toast.jsx";
 
 const Cart = () => {
   const cart = useContext(CartContext);
+  const navigate = useNavigate();
+  const [address, setAddress] = useState(null);
   const [updatingItem, setUpdatingQuantity] = useState({
     id: 0,
     quantity: 0,
   });
+
+  const startCheckout = () => {
+    cart
+      .startCheckout(address)
+      .then(() => {
+        Toast.notifyMessage("success", "checkout successfully");
+        navigate("/");
+      })
+      .catch((err) => {
+        Toast.notifyMessage("error", "checkout error : " + err.message);
+      });
+  };
 
   const updateItem = async () => {
     await cart.updateItem(updatingItem.id, updatingItem.quantity);
@@ -65,9 +79,7 @@ const Cart = () => {
                       }
                     />
                   </td>
-                  <td className="py-2">
-                    {item.quantity * item.product.price}
-                  </td>
+                  <td className="py-2">{item.quantity * item.product.price}</td>
                   <td className="py-2">
                     {updatingItem.id == item.id &&
                       updatingItem.quantity != item.quantity && (
@@ -88,11 +100,27 @@ const Cart = () => {
                 </tr>
               ))}
               <tr>
-                <td colSpan={3} className="py-2 text-right">
+                <td colSpan={4} className="py-2 text-right">
                   Total
                 </td>
-                <td className="py-2">{cart.total}</td>
-                <td></td>
+                <td className="py-2">{cart.getTotal()}</td>
+              </tr>
+              <tr>
+                <td colSpan={4}>
+                  <div className="flex justify-between p-2">
+                    <input
+                      type="text"
+                      className="w-1/2 p-1 border shadow"
+                      onChange={(e) => setAddress(e.target.value)}
+                    />
+                    <button
+                      onClick={() => startCheckout()}
+                      className="bg-green-500 text-white px-2 py-1"
+                    >
+                      Checkout
+                    </button>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
