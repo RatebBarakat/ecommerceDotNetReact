@@ -76,13 +76,13 @@ export default function UpdateProduct() {
   const [product, setProduct] = useState({
     name: "",
     slug: "",
-    small_description: "",
+    smallDescription: "",
     description: "",
     price: "",
     quantity: "",
     images: [],
     tags: [],
-    category_id: 12,
+    categoryId: 12,
   });
 
   useEffect(() => {
@@ -91,31 +91,13 @@ export default function UpdateProduct() {
 
   const fetchProduct = () => {
     axios
-      .get(`/api/product/${id}`)
+      .get(`/admin/products/${id}`)
       .then((response) => {
-        const data = response.data.data;
+        const data = response.data;
 
-        setProduct({
-          ...data,
-          category_id: data.category?.id,
-          images:
-            data.images?.map((image) => ({
-              id: image.id,
-              url: image.url,
-              file: image.url,
-            })) || [],
-          tags: Array.from(
-            data.tags?.map((tag) => {
-              return {
-                value: tag.id,
-                label: tag.name,
-              };
-            }) || []
-          ),
-          discounts: data.discounts,
-        });
-        setAttributes(Array.from(data.attributes));
-        setVarients(Array.from(data.varients));
+        setProduct(response.data);
+        // setAttributes(Array.from(data.attributes));
+        // setVarients(Array.from(data.varients));
         setTemporaryImages(data.images || []);
       })
       .catch((error) => {
@@ -191,11 +173,13 @@ export default function UpdateProduct() {
     const fetchData = async () => {
       try {
         const [categoriesResponse, tagsResponse] = await Promise.all([
-          axios.get("admin/categories/all")
-          // axios.get("/api/tag?type=all"),
+          axios.get("admin/categories/all"),
+          new Promise(resolve => {
+            resolve([]);
+          }),
         ]);
 
-        setCategories(categoriesResponse.data.data);
+        setCategories(categoriesResponse.data);
 
         const tagsFromResponse = tagsResponse.data.data.map((tag) => ({
           value: tag.id,
@@ -203,14 +187,13 @@ export default function UpdateProduct() {
         }));
 
         setSuggestions(tagsFromResponse);
-        fetchProduct();
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         setIsLoading(false);
       }
     };
-
+    fetchProduct();
     fetchData();
   }, [id, auth.permissions]);
 
@@ -233,9 +216,9 @@ export default function UpdateProduct() {
 
     if (image.id !== null) {
       axios
-        .post(`/api/product/deleteImage`, {
-          id: id,
-          image_id: image.id,
+        .post(`/admin/images/delete`, {
+          productId: id,
+          imageId: image.id,
         })
         .then(() => {
           const updatedTemporaryImages = temporaryImages.filter(
@@ -272,13 +255,13 @@ export default function UpdateProduct() {
     }
 
     const formData = new FormData();
-
+    formData.append('ProductId', id);
     files.forEach((file) => {
-      formData.append("images[]", file);
+      formData.append("images", file);
     });
 
     axios
-      .post(`/api/product/uploadImage/${id}`, formData, {
+      .post(`/admin/images`, formData, {
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / progressEvent.total
@@ -290,18 +273,7 @@ export default function UpdateProduct() {
         },
       })
       .then((response) => {
-        const uploadedImages = response.data.images;
-        const imagesToAdd = uploadedImages.map((image) => ({
-          id: image.id,
-          url: image.url,
-          file: image.url,
-        }));
-
-        setProduct((prevProduct) => ({
-          ...prevProduct,
-          images: [...prevProduct.images, ...imagesToAdd],
-        }));
-        setTemporaryImages([...temporaryImages, ...imagesToAdd]);
+        fetchProduct();
       })
       .catch((error) => {
         Toast.notify("error", error.response.data.message);
@@ -312,18 +284,18 @@ export default function UpdateProduct() {
     event.target.value = "";
   };
 
-  const handleTagChange = (selectedOptions) => {
-    setProduct({
-      ...product,
-      tags: selectedOptions,
-    });
-  };
+  // const handleTagChange = (selectedOptions) => {
+  //   setProduct({
+  //     ...product,
+  //     tags: selectedOptions,
+  //   });
+  // };
 
-  function handleDeleteAttributeOption(attributeIndex, optionIndex) {}
+  // function handleDeleteAttributeOption(attributeIndex, optionIndex) {}
 
-  useEffect(() => {
-    setProduct({ ...product, slug: product.name.replace(/\s+/g, "-") });
-  }, [product.name]);
+  // useEffect(() => {
+  //   setProduct({ ...product, slug: product.name.replace(/\s+/g, "-") });
+  // }, [product.name]);
 
   const handleSubmission = async (event) => {
     event.preventDefault();
@@ -365,9 +337,9 @@ export default function UpdateProduct() {
       });
     }
 
-    formData.append("category_id", product.category_id);
+    formData.append("categoryId", product.categoryId);
     axios
-      .post(`/api/product/${id}`, formData, {
+      .put(`/admin/products/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -421,18 +393,18 @@ export default function UpdateProduct() {
             placeholder="slug"
           />
           <Input
-            label="small_description"
+            label="smallDescription"
             type="text"
-            value={product.small_description}
+            value={product.smallDescription}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             onChange={(event) =>
               setProduct({
                 ...product,
-                small_description: event.target.value,
+                smallDescription: event.target.value,
               })
             }
-            error={errors?.small_description || null}
-            placeholder="small_description"
+            error={errors?.smallDescription || null}
+            placeholder="smallDescription"
           />
           <Input
             label="description"
@@ -476,7 +448,7 @@ export default function UpdateProduct() {
             error={errors?.quantity || null}
             placeholder="quantity"
           />
-          <div>
+          {/* <div>
             <label
               htmlFor="tags"
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -508,7 +480,7 @@ export default function UpdateProduct() {
                 }),
               }}
             />
-          </div>
+          </div> */}
           <div>
             <label
               htmlFor="countries"
@@ -517,11 +489,11 @@ export default function UpdateProduct() {
               Select an option
             </label>
             <select
-              value={product.category_id}
+              value={product.categoryId}
               onChange={(event) =>
                 setProduct({
                   ...product,
-                  category_id: event.target.value,
+                  categoryId: event.target.value,
                 })
               }
               id="countries"
@@ -530,7 +502,7 @@ export default function UpdateProduct() {
               <option selected>Choose a country</option>
               {categories &&
                 categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
+                  <option key={cat.id} value={cat.id} selected={cat.id == product.categoryId}>
                     {cat.name}
                   </option>
                 ))}
@@ -551,8 +523,8 @@ export default function UpdateProduct() {
           >
             {temporaryImages &&
               temporaryImages.map((image) => (
-                <div key={image.id ?? image.url} className="image-container">
-                  <img className="w-14 h-14" src={image.url} alt="display" />
+                <div key={image.id ?? image.name} className="image-container">
+                  <img className="w-14 h-14" src={image.name} alt="display" />
                   <FontAwesomeIcon
                     onClick={() => handleRemoveImage(image)}
                     className="text-red-500 cursor-pointer"
@@ -561,7 +533,7 @@ export default function UpdateProduct() {
                 </div>
               ))}
           </div>
-          <div
+          {/* <div
             style={{
               gridColumnStart: "1",
               gridColumnEnd: "3",
@@ -683,7 +655,7 @@ export default function UpdateProduct() {
                 </>
               )}
             </div>
-          </div>
+          </div> */}
           {progress !== 0 && (
             <div
               className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700"

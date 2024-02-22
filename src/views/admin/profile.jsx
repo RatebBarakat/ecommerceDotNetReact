@@ -99,7 +99,7 @@ export default function Profile() {
           >
             profile
           </h2>
-          <Input
+          {/* <Input
             label="postal_code"
             type="text"
             value={profile.postal_code}
@@ -164,7 +164,7 @@ export default function Profile() {
             }
             error={errors?.phone || null}
             placeholder="phone"
-          />
+          /> */}
           <Input
             label="avatar"
             type="file"

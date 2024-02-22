@@ -22,12 +22,12 @@ export default function CreateProduct() {
   const [product, setProduct] = useState({
     name: "",
     slug: "",
-    small_description: "",
+    smallDescription: "",
     description: "",
     price: "",
     quantity: "",
-    images: [],
-    category_id: 0,
+    Images: [],
+    categoryId: 0,
     tags: [],
     options: [],
   });
@@ -138,7 +138,7 @@ export default function CreateProduct() {
   };
 
   const handleFileUpload = (event) => {
-    setProduct({ ...product, images: event.target.files });
+    setProduct({ ...product, Images: event.target.files });
   };
 
   const [errors, setErrors] = useState([]);
@@ -155,46 +155,46 @@ export default function CreateProduct() {
     const formData = new FormData();
 
     for (const key in product) {
-      if (key !== "images" && key !== "tags") {
+      if (key !== "Images") {
         formData.append(key, product[key]);
       }
     }
 
-    if (attributes.length > 0) {
-      attributes.forEach((attribute) => {
-        formData.append("attributes[]", attribute.name);
-      });
-      varients.forEach((varient, index) => {
-        formData.append(`varients[${index}][price]`, varient.price);
-        formData.append(`varients[${index}][quantity]`, varient.quantity);
+    // if (attributes.length > 0) {
+    //   attributes.forEach((attribute) => {
+    //     formData.append("attributes[]", attribute.name);
+    //   });
+    //   varients.forEach((varient, index) => {
+    //     formData.append(`varients[${index}][price]`, varient.price);
+    //     formData.append(`varients[${index}][quantity]`, varient.quantity);
 
-        varient.options.forEach((option, optionIndex) => {
-          formData.append(
-            `varients[${index}][options][${optionIndex}][name]`,
-            option.name
-          );
-          formData.append(
-            `varients[${index}][options][${optionIndex}][value]`,
-            option.value
-          );
-        });
+    //     varient.options.forEach((option, optionIndex) => {
+    //       formData.append(
+    //         `varients[${index}][options][${optionIndex}][name]`,
+    //         option.name
+    //       );
+    //       formData.append(
+    //         `varients[${index}][options][${optionIndex}][value]`,
+    //         option.value
+    //       );
+    //     });
+    //   });
+    // }
+
+    if (product.Images) {
+      Array.from(product.Images).map((image) => {
+        formData.append("Images", image);
       });
     }
 
-    if (product.images) {
-      Array.from(product.images).map((image) => {
-        formData.append("images[]", image);
-      });
-    }
-
-    if (product.tags) {
-      Array.from(product.tags).map((tag) => {
-        formData.append("tags[]", tag.value);
-      });
-    }
+    // if (product.tags) {
+    //   Array.from(product.tags).map((tag) => {
+    //     formData.append("tags[]", tag.value);
+    //   });
+    // }
 
     axios
-      .post("/api/product", formData, {
+      .post("/admin/products", formData, {
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / progressEvent.total
@@ -269,11 +269,11 @@ export default function CreateProduct() {
               onChange={(event) =>
                 setProduct({
                   ...product,
-                  small_description: event.target.value,
+                  smallDescription: event.target.value,
                 })
               }
               error={errors?.small_description || null}
-              placeholder="small_description"
+              placeholder="small description"
             />
             <Input
               label="description"
@@ -317,7 +317,7 @@ export default function CreateProduct() {
               error={errors?.quantity || null}
               placeholder="quantity"
             />
-            <div>
+            {/* <div>
               <label
                 htmlFor="tags"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -349,7 +349,7 @@ export default function CreateProduct() {
                   }),
                 }}
               />
-            </div>
+            </div> */}
             <div>
               <label
                 htmlFor="categories"
@@ -358,11 +358,11 @@ export default function CreateProduct() {
                 Select a category
               </label>
               <select
-                value={product.category_id}
+                value={product.categoryId}
                 onChange={(event) =>
                   setProduct({
                     ...product,
-                    category_id: event.target.value,
+                    categoryId: event.target.value,
                   })
                 }
                 id="categories"
@@ -378,13 +378,13 @@ export default function CreateProduct() {
               </select>
             </div>
             <Input
-              label="avatar"
+              label="images"
               type="file"
               name="file"
               multiple={true}
-              error={errors?.avatar || null}
+              error={errors?.images || null}
               onChange={handleFileUpload}
-              style={{ gridColumnStart: "1", gridColumnEnd: "3" }}
+              // style={{ gridColumnStart: "1", gridColumnEnd: "3" }}
             />
             {progress !== 0 && (
               <div
@@ -404,7 +404,7 @@ export default function CreateProduct() {
                 ></div>
               </div>
             )}
-            <div
+            {/* <div
               style={{
                 gridColumnStart: "1",
                 gridColumnEnd: "3",
@@ -519,7 +519,7 @@ export default function CreateProduct() {
                   </div>
                 </>
               )}
-            </div>
+            </div> */}
             <button
               disabled={progress !== 0}
               onClick={handleSubmission}
