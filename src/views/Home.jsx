@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Loading from "../components/Loading";
 import createAxiosInstance from "../axios";
-import Toast from "../components/Toast";
 import { CartContext } from "../contexts/cart";
 import Header from "../components/Header";
 import { AuthContext } from "../contexts/auth";
@@ -38,14 +37,14 @@ export default function Home() {
           <div className="cotainer p-2 border shadow-lg bg-gray-100">
             {categories.map((category) => (
               <div
-                key={category.category.name}
+                key={category.name}
                 className="shadow mb-2 rounded pb-2 bg-gray-50"
               >
                 <h2 className="text-md text-center text-indigo-600 font-bold border mb-2 rounded py-2">
-                  {category.category.name}
+                  {category.name}
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 justify-center">
-                  {category.category.products.map((product) => (
+                  {category.products.map((product) => (
                     <div
                       key={product.id}
                       className="product shadow border bg-white rounded-lg mx-auto w-full overflow-hidden"
