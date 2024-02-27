@@ -18,7 +18,7 @@ const Cart = () => {
       .startCheckout(address)
       .then(() => {
         Toast.notifyMessage("success", "checkout successfully");
-        navigate("/");
+        navigate("/user/order");
       })
       .catch((err) => {
         Toast.notifyMessage("error", "checkout error : " + err.message);

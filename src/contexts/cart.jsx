@@ -23,7 +23,7 @@ const CartProvider = ({ children }) => {
 
   const startCheckout = (address) => {
     return new Promise((res,rej) => {
-      axios.post("user/checkout", {
+      axios.post("user/orders", {
         address: address
       }).then(() => {
         fetchCart();

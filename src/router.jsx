@@ -19,6 +19,7 @@ import Tags from "./views/admin/tag";
 import AdminLayout from "./layouts/AdminLayout";
 import Cart from "./views/cart";
 import Roles from "./views/admin/roles";
+import Orders from "./views/orders";
 
 const router = createBrowserRouter([
     {
@@ -96,6 +97,10 @@ const router = createBrowserRouter([
             {
                 path: 'dashboard',
                 element: <Dashboard />
+            },
+            {
+                path: 'order',
+                element: <Orders />
             },
             {
                 path: 'profile',
