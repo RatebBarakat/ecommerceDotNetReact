@@ -20,12 +20,12 @@ const AuthProvider = ({ children }) => {
         setUser(response.data.user.user);
         setPermissions(response.data.user.permissions);
         setIsAdmin(isAdmin);
-        setIsVerified(true);
+        setIsVerified(response.data.user.user.isEmailConfirmed);
       })
       .catch((error) => {
         setUser(null);
         setIsVerified(false);
-        if (location.href != "http://localhost:5173/login" && location.href.includes("admin") || location.href.includes("user")) {
+        if (location.href != "http://localhost:5173/login" && (location.href.includes("admin") || location.href.includes("user"))) {
           window.location.href = "http://localhost:5173/login";
         }
       })

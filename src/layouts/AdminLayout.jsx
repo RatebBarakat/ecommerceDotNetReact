@@ -41,7 +41,7 @@ export default function AdminLayout() {
 
   useEffect(() => {
     const fetchUserAndRedirect = async () => {
-      if (auth.isLoading === false &&(!auth.user || auth.isAdmin === false)) {
+      if (auth.isLoading === false &&(!auth.user || auth.isAdmin === false || auth.isVerified === false)) {
         Toast.notifyMessage("error", "you can't access this page");
         navigate(auth.user ? "/user/dashboard" : "/login");
       }

@@ -12,9 +12,9 @@ const Register = () => {
 
   const [form, setForm] = useState({
     UserName: "",
-    Email: "",
-    Password: "",
-    PasswordConfirm: "",
+    email: "",
+    password: "",
+    passwordConfirm: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -24,7 +24,7 @@ const Register = () => {
 
     try {
       setProcessing(true);
-      await axios.post("/register", form);
+      await axios.post("user/register", form);
       await authContext.fetchUser();
       navigate("/user/verify");
     } catch (error) {
@@ -70,7 +70,7 @@ const Register = () => {
             </label>
             <input
               id="name"
-              name="name"
+              name="UserName"
               type="name"
               autoComplete="name"
               className="mt-1 p-2 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"
@@ -107,18 +107,18 @@ const Register = () => {
             {errors && error("password")}
           </div>
           <div>
-            <label htmlFor="password" className="block text-gray-700">
+            <label htmlFor="passwordConfirm" className="block text-gray-700">
               Password confirm
             </label>
             <input
-              id="password_conf"
-              name="password_conf"
+              id="passwordConfirm"
+              name="passwordConfirm"
               type="password"
               autoComplete="current-password"
               className="mt-1 p-2 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"
               onChange={handleInputChange}
             />
-            {errors && error("password_conf")}
+            {errors && error("passwordConfirm")}
           </div>
           <div>
             <Link className="text-indigo-600" to="/login">

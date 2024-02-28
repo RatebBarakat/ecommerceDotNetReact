@@ -20,11 +20,16 @@ import AdminLayout from "./layouts/AdminLayout";
 import Cart from "./views/cart";
 import Roles from "./views/admin/roles";
 import Orders from "./views/orders";
+import Category from "./views/Category";
 
 const router = createBrowserRouter([
     {
         path: '/',
         element: <Home />
+    },
+    {
+        path: '/category/:id',
+        element: <Category />
     },
     {
         path: '/',

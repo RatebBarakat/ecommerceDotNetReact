@@ -16,7 +16,7 @@ const DashboardLink = ({ to, text, count = 0, bg }) => (
         </span>
       </div>
       <span>
-        <h6 className="text-gray-100 p-4">{count}</h6>
+        {/* <h6 className="text-gray-100 p-4">{count}</h6> */}
       </span>
     </Link>
   </div>
@@ -46,13 +46,13 @@ export default function Dashboard() {
       bg: "bg-blue-600",
       count : counts['products']
     },
-    {
-      permission: "read-tags",
-      route: "/admin/tags",
-      text: "Tags",
-      bg: "bg-green-600",
-      count : counts['tags']
-    },
+    // {
+    //   permission: "read-tags",
+    //   route: "/admin/tags",
+    //   text: "Tags",
+    //   bg: "bg-green-600",
+    //   count : counts['tags']
+    // },
     {
       permission: "read-roles",
       route: "/admin/roles",
@@ -78,7 +78,7 @@ export default function Dashboard() {
               <DashboardLink
                 key={permission}
                 to={route}
-                count={count}
+                // count={count}
                 text={text}
                 bg={bg}
               />

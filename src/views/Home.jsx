@@ -30,7 +30,7 @@ export default function Home() {
   return (
     <>
       {isLoading ? (
-        <Loading centered={false} size={7} />
+        <Loading centered={true} size={"large"} />
       ) : (
         <>
           <Header AuthContext={auth} CartContext={cart} />

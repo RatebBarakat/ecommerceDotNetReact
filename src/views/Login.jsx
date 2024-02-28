@@ -4,6 +4,7 @@ import { AuthContext } from "../contexts/auth";
 import Cookies from "js-cookie";
 import { ProfileContext } from "../contexts/profile";
 import createAxiosInstance from "../axios";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 
 const Login = () => {
   const authContext = useContext(AuthContext);
@@ -76,14 +77,14 @@ const Login = () => {
             )}
           </div>
           <div>
-            {/* <GoogleOAuthProvider 
-            clientId="71899869173-k4oqavrnnti914818r5hqj3kgb86cl14.apps.googleusercontent.com">
+            <GoogleOAuthProvider
+            clientId="451812955571-dajpm95u4r5kt9dmfla84d9u62c9g0ed.apps.googleusercontent.com">
               <GoogleLogin
                 onSuccess={(credentialResponse) => {
                   console.log(credentialResponse);
                 }}
               />
-            </GoogleOAuthProvider> */}
+            </GoogleOAuthProvider>
             
             <Link className="text-indigo-600" to="/register">
               dont have an account?
