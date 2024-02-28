@@ -20,14 +20,13 @@ export default function CreateProduct() {
   const optionsRefs = useRef([]);
   const [tagSuggestions, setTagSuggestions] = useState([]);
   const [product, setProduct] = useState({
-    name: "",
-    slug: "",
-    smallDescription: "",
-    description: "",
-    price: "",
-    quantity: "",
+    Name: "",
+    SmallDescription: "",
+    Description: "",
+    Price: "",
+    Quantity: "",
     Images: [],
-    categoryId: 0,
+    CategoryId: 0,
     tags: [],
     options: [],
   });
@@ -70,10 +69,6 @@ export default function CreateProduct() {
         setIsLoading(false);
       });
   }, []);
-
-  useEffect(() => {
-    setProduct({ ...product, slug: product.name.replace(/\s+/g, "-") });
-  }, [product.name]);
 
   useEffect(() => {
     setVarients([]);
@@ -236,54 +231,40 @@ export default function CreateProduct() {
             <Input
               label="name"
               type="text"
-              value={product.name}
+              value={product.Name}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               onChange={(event) =>
                 setProduct({
                   ...product,
-                  name: event.target.value,
+                  Name: event.target.value,
                 })
               }
-              error={errors?.name || null}
+              error={errors?.Name || null}
               placeholder="name"
-            />
-            <Input
-              label="slug"
-              type="text"
-              value={product.slug}
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              onChange={(event) =>
-                setProduct({
-                  ...product,
-                  slug: event.target.value,
-                })
-              }
-              error={errors?.slug || null}
-              placeholder="slug"
             />
             <Input
               label="small_description"
               type="text"
-              value={product.small_description}
+              value={product.SmallDescription}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               onChange={(event) =>
                 setProduct({
                   ...product,
-                  smallDescription: event.target.value,
+                  SmallDescription: event.target.value,
                 })
               }
-              error={errors?.small_description || null}
+              error={errors?.SmallDescription || null}
               placeholder="small description"
             />
             <Input
               label="description"
               type="text"
-              value={product.description}
+              value={product.Description}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               onChange={(event) =>
                 setProduct({
                   ...product,
-                  description: event.target.value,
+                  Description: event.target.value,
                 })
               }
               error={errors?.description || null}
@@ -292,29 +273,29 @@ export default function CreateProduct() {
             <Input
               label="price"
               type="number"
-              value={product.price}
+              value={product.Price}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               onChange={(event) =>
                 setProduct({
                   ...product,
-                  price: event.target.value,
+                  Price: event.target.value,
                 })
               }
-              error={errors?.price || null}
+              error={errors?.Price || null}
               placeholder="price"
             />
             <Input
               label="quantity"
               type="number"
-              value={product.quantity}
+              value={product.Quantity}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               onChange={(event) =>
                 setProduct({
                   ...product,
-                  quantity: event.target.value,
+                  Quantity: event.target.value,
                 })
               }
-              error={errors?.quantity || null}
+              error={errors?.Quantity || null}
               placeholder="quantity"
             />
             {/* <div>
@@ -358,11 +339,11 @@ export default function CreateProduct() {
                 Select a category
               </label>
               <select
-                value={product.categoryId}
+                value={product.CategoryId}
                 onChange={(event) =>
                   setProduct({
                     ...product,
-                    categoryId: event.target.value,
+                    CategoryId: event.target.value,
                   })
                 }
                 id="categories"
@@ -382,9 +363,9 @@ export default function CreateProduct() {
               type="file"
               name="file"
               multiple={true}
-              error={errors?.images || null}
+              error={errors?.Images || null}
               onChange={handleFileUpload}
-              // style={{ gridColumnStart: "1", gridColumnEnd: "3" }}
+              style={{ gridColumnStart: "1", gridColumnEnd: "3" }}
             />
             {progress !== 0 && (
               <div

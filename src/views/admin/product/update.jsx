@@ -8,6 +8,7 @@ import Toast from "../../../components/Toast";
 import createAxiosInstance from "../../../axios";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import ErrorHelper from "../../../helpers/errors";
 
 export default function UpdateProduct() {
   const [isLoading, setIsLoading] = useState(true);
@@ -348,6 +349,8 @@ export default function UpdateProduct() {
         navigate("/admin/products");
       })
       .catch((error) => {
+        let errorFromRequest = ErrorHelper.extractErrorMessage(error);
+        errorFromRequest && setErrors(errorFromRequest);
         console.log("error: ", error);
       })
       .finally(() => {
@@ -378,19 +381,8 @@ export default function UpdateProduct() {
             onChange={(event) =>
               setProduct({ ...product, name: event.target.value })
             }
-            error={errors?.name || null}
+            error={errors?.Name || null}
             placeholder="name"
-          />
-          <Input
-            label="slug"
-            type="text"
-            value={product.slug}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            onChange={(event) =>
-              setProduct({ ...product, slug: event.target.value })
-            }
-            error={errors?.slug || null}
-            placeholder="slug"
           />
           <Input
             label="smallDescription"
@@ -403,7 +395,7 @@ export default function UpdateProduct() {
                 smallDescription: event.target.value,
               })
             }
-            error={errors?.smallDescription || null}
+            error={errors?.SmallDescription || null}
             placeholder="smallDescription"
           />
           <Input
@@ -417,7 +409,7 @@ export default function UpdateProduct() {
                 description: event.target.value,
               })
             }
-            error={errors?.description || null}
+            error={errors?.Description || null}
             placeholder="description"
           />
           <Input
@@ -431,7 +423,7 @@ export default function UpdateProduct() {
                 price: event.target.value,
               })
             }
-            error={errors?.price || null}
+            error={errors?.Price || null}
             placeholder="price"
           />
           <Input
@@ -445,7 +437,7 @@ export default function UpdateProduct() {
                 quantity: event.target.value,
               })
             }
-            error={errors?.quantity || null}
+            error={errors?.Quantity || null}
             placeholder="quantity"
           />
           {/* <div>
@@ -513,7 +505,7 @@ export default function UpdateProduct() {
             type="file"
             name="file"
             multiple={true}
-            error={errors?.images || null}
+            error={errors?.Images || null}
             onChange={handleFileUpload}
             style={{ gridColumnStart: "1", gridColumnEnd: "3" }}
           />
