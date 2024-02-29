@@ -77,15 +77,23 @@ const Login = () => {
             )}
           </div>
           <div>
-            <GoogleOAuthProvider
-            clientId="451812955571-dajpm95u4r5kt9dmfla84d9u62c9g0ed.apps.googleusercontent.com">
+            <GoogleOAuthProvider clientId="451812955571-dajpm95u4r5kt9dmfla84d9u62c9g0ed.apps.googleusercontent.com">
               <GoogleLogin
                 onSuccess={(credentialResponse) => {
                   console.log(credentialResponse);
+                  axios
+                    .post("user/google/login", credentialResponse.credential)
+                    .then(async (res) => {
+                      console.log("res :>> ", res);
+                      await authContext.fetchUser();
+                    })
+                    .catch((e) => {
+                      console.log("e :>> ", e);
+                    });
                 }}
               />
             </GoogleOAuthProvider>
-            
+
             <Link className="text-indigo-600" to="/register">
               dont have an account?
             </Link>
