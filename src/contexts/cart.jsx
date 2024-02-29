@@ -7,7 +7,7 @@ const CartContext = createContext({});
 
 const CartProvider = ({ children }) => {
   const [carts, setCarts] = useState([]);
-  const [total,setTotal] = useState(0);
+  const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const auth = useContext(AuthContext);
   const axios = createAxiosInstance();
@@ -22,54 +22,61 @@ const CartProvider = ({ children }) => {
   };
 
   const startCheckout = (address) => {
-    return new Promise((res,rej) => {
-      axios.post("user/orders", {
-        address: address
-      }).then(() => {
-        fetchCart();
-        res(true);
-      }).catch(e => {
-        rej(e);
-      })
-    })
-  }
+    return new Promise((res, rej) => {
+      axios
+        .post("user/orders", {
+          address: address,
+        })
+        .then(() => {
+          fetchCart();
+          res(true);
+        })
+        .catch((e) => {
+          rej(e);
+        });
+    });
+  };
 
   const addToCart = async (productId) => {
-    return new Promise((res,reject) => {
-      axios.post("/user/cart", {
-        ProductId: productId,
-        Quantity: 1,
-      }).then(() => {
-        fetchCart();
-      })
-      .catch(e => {
-        Toast.notifyMessage("error","can't add item to cart");
-        reject("login");
-      });
-    })
+    return new Promise((res, reject) => {
+      axios
+        .post("/user/cart", {
+          ProductId: productId,
+          Quantity: 1,
+        })
+        .then(() => {
+          fetchCart();
+        })
+        .catch((e) => {
+          Toast.notifyMessage("error", "can't add item to cart");
+          reject("login");
+        });
+    });
   };
 
   const deleteFromCart = async (cartId) => {
     setIsLoading(true);
-    await axios.delete(`/user/cart/${cartId}`, {
-    })
-    .then(() => {
-      fetchCart();
-    })
-    .catch(e => {
-      Toast.notifyMessage("error","can't add item to cart");
-    });
+    await axios
+      .delete(`/user/cart/${cartId}`, {})
+      .then(() => {
+        fetchCart();
+      })
+      .catch((e) => {
+        Toast.notifyMessage("error", "can't add item to cart");
+      });
     setCarts(carts.filter((cart) => cart.id != cartId));
     setIsLoading(false);
   };
 
-  const fetchCart = async () => {
-    !isLoading && setIsLoading(true);
-
+  const fetchCart = () => {
+    setIsLoading(true);
     axios
       .get("/user/cart")
       .then((response) => {
         setCarts(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching cart:", error);
       })
       .finally(() => {
         setIsLoading(false);
@@ -81,18 +88,19 @@ const CartProvider = ({ children }) => {
     return carts.some((cart) => cart.productId === id);
   };
 
-  const updateItem = (id,quantity) => {
-    axios.put(`/user/cart/${id}`,{
-      CartId: id,
-      Quantity : quantity,
-    })
-    .then(() => {
-      fetchCart();
-    })
-    .catch(e => {
-      Toast.notifyMessage("error","can't update item in cart");
-    });
-  }
+  const updateItem = (id, quantity) => {
+    axios
+      .put(`/user/cart/${id}`, {
+        CartId: id,
+        Quantity: quantity,
+      })
+      .then(() => {
+        fetchCart();
+      })
+      .catch((e) => {
+        Toast.notifyMessage("error", "can't update item in cart");
+      });
+  };
 
   useEffect(() => {
     fetchCart();
@@ -108,7 +116,7 @@ const CartProvider = ({ children }) => {
     getTotal,
     deleteFromCart,
     updateItem,
-    startCheckout
+    startCheckout,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
