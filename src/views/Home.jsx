@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { Suspense, useContext, useEffect, useState } from "react";
 import Loading from "../components/Loading";
 import createAxiosInstance from "../axios";
 import { CartContext } from "../contexts/cart";
@@ -15,25 +15,33 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get("/user/products/home").then((response) => {
-      setCategories(response.data);
-      setIsLoading(false);
-    });
+    fetchCategories();
   }, []);
 
+  const fetchCategories = () => {
+    axios
+      .get("/user/products/home")
+      .then((response) => {
+        setCategories(response.data);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   const addToCart = async (productId) => {
-    cart.addToCart(productId).catch(() => {
+    await cart.addToCart(productId).catch(() => {
       navigate("/login");
     });
   };
 
   return (
     <>
-      {isLoading ? (
+      <Header AuthContext={auth} CartContext={cart} />
+      {isLoading === true ? (
         <Loading centered={true} size={"large"} />
       ) : (
         <>
-          <Header AuthContext={auth} CartContext={cart} />
           <div className="cotainer p-2 border shadow-lg bg-gray-100">
             {categories.map((category) => (
               <div
