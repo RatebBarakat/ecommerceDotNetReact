@@ -100,10 +100,6 @@ const router = createBrowserRouter([
         element: <AuthLayout />,
         children: [
             {
-                path: 'dashboard',
-                element: <Dashboard />
-            },
-            {
                 path: 'order',
                 element: <Orders />
             },
