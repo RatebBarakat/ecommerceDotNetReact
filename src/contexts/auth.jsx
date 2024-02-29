@@ -19,7 +19,7 @@ const AuthProvider = ({ children }) => {
       .then((response) => {
         setUser(response.data.user.user);
         setPermissions(response.data.user.permissions);
-        setIsAdmin(isAdmin);
+        setIsAdmin(response.data.user.isAdmin);
         setIsVerified(response.data.user.user.isEmailConfirmed);
       })
       .catch((error) => {
